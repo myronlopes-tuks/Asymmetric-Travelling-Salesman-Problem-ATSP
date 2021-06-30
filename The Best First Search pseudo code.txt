@@ -13,13 +13,13 @@ def bestfs(in Start, out State)
 				generate children of X;
 				for each child of X do
 					case:
-						the child is not on open or closed
+						the child is not on open or closed:
 						begin
 							assign the child a heuristic value
 							add the child to open
 						end;
 
-						the child is already on open
+						the child is already on open:
 							if the child was reached by a shorter path then
 								give the state on open the shorter path
 						
