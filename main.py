@@ -71,8 +71,8 @@ def set_g_score(current, parent, closed_list=None):
         for index in range(len(closed_list) - 1):
             total_path_distance += get_edge_weight(closed_list[index], closed_list[index + 1])
 
-        total_path_distance += get_edge_weight()
-
+        total_path_distance += get_edge_weight(parent, current)
+        g_score[current] = total_path_distance
 
 
 def get_h_score(current):
@@ -126,7 +126,7 @@ def get_total_path_distance(closed_list):
     for index in range(len(closed_list) - 1):
         # if index < 16
         total_path_distance += get_edge_weight(closed_list[index], closed_list[index + 1])
-        print("\nindex:\n", index)
+        # print("\nindex:\n", index)
 
     return total_path_distance
 
@@ -136,27 +136,27 @@ def a_star(start):
     f_score[start] = g_score[start] = h_score[start] = 0
     closed_list = []
     while len(open_list) > 0:
-        print("\nIteration-------------------------------------------------------------:\n")
-        print("\n F_Score[]:\n", f_score)
+        # print("\nIteration-------------------------------------------------------------:\n")
+        # print("\n F_Score[]:\n", f_score)
         current_node = get_node_with_lowest_f_score(open_list)
-        print("\nCurrent Node:\n", current_node)
+        # print("\nCurrent Node:\n", current_node)
         closed_list.append(current_node)
-        print("\nClosed List[](After append):\n", closed_list)
+        # print("\nClosed List[](After append):\n", closed_list)
         open_list.remove(current_node)
-        print("\nOpen List[](After removal):\n", open_list)
+        # print("\nOpen List[](After removal):\n", open_list)
         for neighbour in range(len(G[current_node])):
-            if not G[current_node][neighbour]['weight'] == 0:
-                if neighbour_has_lower_g_value(neighbour, current_node) and is_in_closed_list(neighbour,
-                                                                                              closed_list):
-                    parent[neighbour] = current_node
-                elif current_has_lower_g_value(neighbour, current_node) and is_in_open_list(neighbour, open_list):
-                    parent[neighbour] = current_node
-                elif not is_in_open_list(neighbour, open_list) and not is_in_closed_list(neighbour, closed_list):
-                    if not is_in_closed_list(neighbour, closed_list):
-                        open_list.append(neighbour)
-                        set_g_score(neighbour, current_node)
-                        set_h_score(neighbour, start)
-                        set_f_score(neighbour)
+            # if not G[current_node][neighbour]['weight'] == 0:
+            if neighbour_has_lower_g_value(neighbour, current_node) and is_in_closed_list(neighbour,
+                                                                                          closed_list):
+                parent[neighbour] = current_node
+            elif current_has_lower_g_value(neighbour, current_node) and is_in_open_list(neighbour, open_list):
+                parent[neighbour] = current_node
+            elif not is_in_open_list(neighbour, open_list) and not is_in_closed_list(neighbour, closed_list):
+                # if not is_in_closed_list(neighbour, closed_list):
+                open_list.append(neighbour)
+                set_g_score(neighbour, current_node)
+                set_h_score(neighbour, start)
+                set_f_score(neighbour)
 
     print("\n g_score: \n", g_score)
     print("\n Sum of Edge weights of path: \n", )
@@ -172,142 +172,116 @@ def main():
     for index in range(len(list(problem.get_nodes()))):
         print("\n Path ", index, ": ", most_optimal_path[index], '\n')
 
+
 def aStarAlgo(start_node, stop_node):
+    open_set = set(start_node)
+    closed_set = set()
+    g = {}  # store distance from starting node
+    parents = {}  # parents contains an adjacency map of all nodes
 
-        open_set = set(start_node)
-        closed_set = set()
-        g = {} #store distance from starting node
-        parents = {}# parents contains an adjacency map of all nodes
+    # ditance of starting node from itself is zero
+    g[start_node] = 0
+    # start_node is root node i.e it has no parent nodes
+    # so start_node is set to its own parent node
+    parents[start_node] = start_node
 
-        #ditance of starting node from itself is zero
-        g[start_node] = 0
-        #start_node is root node i.e it has no parent nodes
-        #so start_node is set to its own parent node
-        parents[start_node] = start_node
+    while len(open_set) > 0:
+        n = None
+
+        # node with lowest f() is found
+        for v in open_set:
+            if n == None or g[v] + heuristic(v) < g[n] + heuristic(n):
+                n = v
+
+        if n == stop_node or Graph_nodes[n] == None:
+            pass
+        else:
+            for (m, weight) in get_neighbors(n):
+                # nodes 'm' not in open and closed set are added to open
+                # n is set its parent
+                if m not in open_set and m not in closed_set:
+                    open_set.add(m)
+                    parents[m] = n
+                    g[m] = g[n] + weight
 
 
-        while len(open_set) > 0:
-            n = None
-
-            #node with lowest f() is found
-            for v in open_set:
-                if n == None or g[v] + heuristic(v) < g[n] + heuristic(n):
-                    n = v
-
-
-            if n == stop_node or Graph_nodes[n] == None:
-                pass
-            else:
-                for (m, weight) in get_neighbors(n):
-                    #nodes 'm' not in first and last set are added to first
-                    #n is set its parent
-                    if m not in open_set and m not in closed_set:
-                        open_set.add(m)
-                        parents[m] = n
+                # for each node m,compare its distance from start i.e g(m) to the
+                # from start through n node
+                else:
+                    if g[m] > g[n] + weight:
+                        # update g(m)
                         g[m] = g[n] + weight
+                        # change parent of m to n
+                        parents[m] = n
+
+                        # if m in closed set,remove and add to open
+                        if m in closed_set:
+                            closed_set.remove(m)
+                            open_set.add(m)
+
+        if n == None:
+            print('Path does not exist!')
+            return None
+
+        # if the current node is the stop_node
+        # then we begin reconstructin the path from it to the start_node
+        if n == stop_node:
+            path = []
+
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+
+            path.append(start_node)
+
+            path.reverse()
+
+            print('Path found: {}'.format(path))
+            return path
+
+        # remove n from the open_list, and add it to closed_list
+        # because all of his neighbors were inspected
+        open_set.remove(n)
+        closed_set.add(n)
+
+    print('Path does not exist!')
+    return None
 
 
-                    #for each node m,compare its distance from start i.e g(m) to the
-                    #from start through n node
-                    else:
-                        if g[m] > g[n] + weight:
-                            #update g(m)
-                            g[m] = g[n] + weight
-                            #change parent of m to n
-                            parents[m] = n
-
-                            #if m in closed set,remove and add to open
-                            if m in closed_set:
-                                closed_set.remove(m)
-                                open_set.add(m)
-
-            if n == None:
-                print('Path does not exist!')
-                return None
-
-            # if the current node is the stop_node
-            # then we begin reconstructin the path from it to the start_node
-            if n == stop_node:
-                path = []
-
-                while parents[n] != n:
-                    path.append(n)
-                    n = parents[n]
-
-                path.append(start_node)
-
-                path.reverse()
-
-                print('Path found: {}'.format(path))
-                return path
-
-
-            # remove n from the open_list, and add it to closed_list
-            # because all of his neighbors were inspected
-            open_set.remove(n)
-            closed_set.add(n)
-
-        print('Path does not exist!')
-        return None
-
-#define fuction to return neighbor and its distance
-#from the passed node
+# define fuction to return neighbor and its distance
+# from the passed node
 def get_neighbors(v):
     if v in Graph_nodes:
         return Graph_nodes[v]
     else:
         return None
-#for simplicity we ll consider heuristic distances given
-#and this function returns heuristic distance for all nodes
+
+
+# for simplicity we ll consider heuristic distances given
+# and this function returns heuristic distance for all nodes
 def heuristic(n):
-        H_dist = {
-            'A': 11,
-            'B': 6,
-            'C': 99,
-            'D': 1,
-            'E': 7,
-            'G': 0,
+    H_dist = {
+        'A': 11,
+        'B': 6,
+        'C': 99,
+        'D': 1,
+        'E': 7,
+        'G': 0,
 
-        }
+    }
 
-        return H_dist[n]
+    return H_dist[n]
 
-#Describe your graph here
+
+# Describe your graph here
 Graph_nodes = {
     'A': [('B', 2), ('E', 3)],
-    'B': [('C', 1),('G', 9)],
+    'B': [('C', 1), ('G', 9)],
     'C': None,
     'E': [('D', 6)],
     'D': [('G', 1)],
 
 }
 aStarAlgo('A', 'G')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 main()
