@@ -69,31 +69,10 @@ def held_karp(dists, cities):
     path.reverse()
     return opt, list(map(lambda x: cities[x], path))
 
-
-# def main():
-    # with open(arg, 'rb') as input_file:
-    #     lines = input_file.readlines()
-    #
-    # # exits if input file is empty
-    # if len(lines) <= 1:
-    #     print("Error: empty input")
-    #     exit(1)
-    #
-    # # read input and store list of cities
-    # cities = set()
-    # for line in lines[1:]:
-    #     x, y = line.split()
-    #     cities.add( (int(x), int(y)) )
-
-    # print total execution time
-    # time_elapsed = time.time() - start_time
-    # print_standardized_time(time_elapsed)
-
 cities = [(i, i) for i in range(17)]
 print(cities)
 
-# start tracking execution time
-# start_time = time.time()
+
 
 # convert to adjacency matrix
 adjacency_matrix = [[0, 3, 5, 48, 48, 8, 8, 5, 5, 3, 3, 0, 3, 5, 8, 8, 5],
