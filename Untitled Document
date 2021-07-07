@@ -1,6 +1,8 @@
 **cycle: **
 [0, 16, 7 , 8, 3, 4, 14, 6, 15, 5, 12, 9, 10, 1 , 13, 2 , 11]
 
+
+These are the sum of the weight of each edge
 **cycle weight sum: **
 5  (0 -> 16 )
 0  ( 16 -> 7 )
